@@ -1,53 +1,804 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bem-vindo</title>
+    <title>Sistema de Leilão - Homebroker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Remove as margens padrões do navegador */
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%; /* Garante que o fundo ocupe 100% da altura */
-        }
-
-        /* Configuração do corpo da página */
+        /* ==========================================================================
+           1. ESTILOS GERAIS E TIPOGRAFIA
+           ========================================================================== */
         body {
-            background-color: #121212; /* Cor de fundo escura (quase preto) */
-            color: #ffffff; /* Cor do texto branca */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fonte moderna */
-            
-            /* Códigos mágicos para centralizar tudo */
-            display: flex;
-            justify-content: center; /* Centraliza na horizontal (esquerda/direita) */
-            align-items: center; /* Centraliza na vertical (cima/baixo) */
-            text-align: center;
-        }
-
-        /* Estilo do título "Bem-vindo" */
-        h1 {
-            font-size: 5rem; /* Tamanho da fonte bem grande (5x o normal) */
-            font-weight: bold;
-            letter-spacing: 2px; /* Espaçamento entre letras */
+            background-color: #1a120b; /* Fundo ainda mais escuro para destacar o painel */
+            color: #fceabb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1); /* Um leve brilho no texto */
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at center, #2b1d14 0%, #1a120b 100%);
         }
 
-        /* Estilo do subtítulo (opcional) */
-        p {
-            font-size: 1.2rem;
-            color: #888; /* Cinza claro para destacar menos */
-            margin-top: 10px;
+        /* Scrollbar personalizada estilo RPG */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #5a3814; border: 1px solid #3b2004; }
+        ::-webkit-scrollbar-thumb { background: #b07c41; border: 1px solid #e0b885; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d1a875; }
+
+        .auction-container {
+            background-color: #d1a875; 
+            border: 4px solid #4a2c10;
+            border-radius: 8px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.9), inset 0 0 20px rgba(139, 90, 43, 0.3);
+            width: 100%;
+            max-width: 1100px;
+            padding: 4px;
         }
+
+        /* ==========================================================================
+           2. CABEÇALHO E NAVEGAÇÃO (ABAS)
+           ========================================================================== */
+        .top-banner {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="%238b5a2b"/><path d="M0 10 L10 0" stroke="%235a3814" stroke-width="1"/></svg>');
+            border-bottom: 3px solid #3b2004;
+            padding: 10px 10px 0 10px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            position: relative;
+        }
+
+        .leilao-title-img {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(to bottom, #d67a2a, #8b3a0b);
+            border: 3px solid #ffce73;
+            border-radius: 25px;
+            padding: 6px 40px;
+            font-size: 1.6rem;
+            font-family: 'Georgia', serif; /* Fonte mais clássica para o título */
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 15px rgba(255, 200, 0, 0.5);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.7);
+            z-index: 10;
+            letter-spacing: 1px;
+        }
+
+        .tab-btn {
+            background: linear-gradient(to bottom, #a06b32, #7a4921);
+            border: 2px solid #4a2c10;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            color: #e0d0b8;
+            font-weight: bold;
+            padding: 10px 24px;
+            cursor: pointer;
+            text-shadow: 1px 1px 1px black;
+            transition: all 0.2s ease-in-out;
+            margin-top: 25px;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
+        }
+
+        .tab-btn:hover { background: linear-gradient(to bottom, #bd8546, #8f582b); color: white; }
+
+        .tab-btn.active {
+            background: linear-gradient(to bottom, #d64a0a, #932800);
+            color: #fff;
+            border-color: #ffce73;
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.4);
+            padding-bottom: 12px;
+            transform: translateY(2px);
+        }
+
+        .warning-text {
+            color: #a00000;
+            font-size: 0.85rem;
+            padding: 6px 15px;
+            font-weight: bold;
+            background-color: #e6c898;
+            border-bottom: 2px solid #b07c41;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-ajuda {
+            background: linear-gradient(to bottom, #f0c869, #b8860b);
+            border: 1px solid #5a3814;
+            border-radius: 4px;
+            color: #3b2004;
+            padding: 3px 12px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: filter 0.2s;
+        }
+        .btn-ajuda:hover { filter: brightness(1.1); }
+
+        /* ==========================================================================
+           3. COMPONENTES COMUNS (Tabelas, Inputs, Botões)
+           ========================================================================== */
+        .main-content-area {
+            display: flex;
+            background-color: #e6c898; 
+            min-height: 480px;
+        }
+
+        /* Tabelas */
+        .table-container { width: 100%; border-collapse: collapse; }
+        .table-container th {
+            background: linear-gradient(to bottom, #c28e53, #9d6c3d);
+            color: #fff;
+            padding: 10px 6px;
+            text-align: center;
+            font-size: 0.85rem;
+            border: 1px solid #7a4921;
+            text-shadow: 1px 1px 2px black;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+        .table-container td {
+            background-color: #d1a875;
+            color: #3b2004;
+            padding: 8px 6px;
+            text-align: center;
+            border: 1px solid #b07c41;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .table-container tr:nth-child(even) td { background-color: #c89d68; }
+        .table-container tr:hover td { background-color: #e0b885; transform: scale(1.005); }
+        .table-container tr.selected td { background-color: #f0e6d2; border-color: #8b5a2b; color: #8b3a0b; }
+        .table-container td:first-child { text-align: left; display: flex; align-items: center; gap: 12px; padding-left: 12px; }
+
+        /* Ícones e Moedas */
+        .item-icon {
+            width: 36px; height: 36px;
+            border: 2px solid #3b2004;
+            border-radius: 6px;
+            background-color: #1a1a1a;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.8);
+        }
+        .item-name { color: #fff; text-shadow: 1px 1px 2px black; font-size: 0.95rem; letter-spacing: 0.5px; }
+        .table-container tr.selected .item-name { color: #8b3a0b; text-shadow: none; font-weight: 800; }
+        
+        .coin-icon {
+            width: 15px; height: 15px;
+            display: inline-block; vertical-align: middle; margin-left: 4px;
+            background: radial-gradient(circle, #ffe066 0%, #b8860b 100%);
+            border-radius: 50%; border: 1px solid #8b5a2b;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Inputs e Botões */
+        .custom-input {
+            background-color: #f0e6d2;
+            border: 1px solid #8b5a2b;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4);
+            color: #3b2004;
+            padding: 6px 10px;
+            font-weight: bold;
+            border-radius: 4px;
+            text-align: right;
+            transition: border-color 0.2s;
+        }
+        .custom-input:focus { border-color: #d64a0a; outline: none; }
+
+        .btn-game {
+            background: linear-gradient(to bottom, #e0e0e0, #999999);
+            border: 2px solid #222;
+            border-radius: 6px;
+            color: #111;
+            font-weight: bold;
+            padding: 6px 18px;
+            cursor: pointer;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.9);
+            transition: all 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-game:active { transform: translateY(3px); box-shadow: 0 1px 2px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.9); }
+        .btn-action-green { background: linear-gradient(to bottom, #81c784, #388e3c); color: white; border-color: #1b5e20; text-shadow: 1px 1px 1px black; }
+        .btn-action-red { background: linear-gradient(to bottom, #e57373, #d32f2f); color: white; border-color: #b71c1c; text-shadow: 1px 1px 1px black; }
+
+        /* ==========================================================================
+           4. LAYOUTS ESPECÍFICOS DAS ABAS
+           ========================================================================== */
+        
+        /* ABA 1: Mercado */
+        .sidebar {
+            width: 240px; background-color: #c49a6c;
+            border-right: 3px solid #8b5a2b; padding: 12px;
+            display: flex; flex-direction: column; gap: 12px;
+            box-shadow: inset -5px 0 10px rgba(0,0,0,0.1);
+        }
+        .cat-item {
+            background: linear-gradient(to bottom, #d1a875, #b07c41);
+            border: 1px solid #8b5a2b; padding: 8px 12px;
+            color: #3b2004; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .cat-sub-item {
+            background-color: #dcb382; border: 1px solid #c29b6a;
+            padding: 6px 12px 6px 35px; color: #5a3814;
+            font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+        }
+        .cat-sub-item:hover { background-color: #e6c898; }
+        .cat-sub-item.active { color: #a00000; background-color: #f0e6d2; border-left: 4px solid #a00000; }
+        
+        .compact-buy-panel {
+            background-color: #b88b5a; border-top: 3px solid #7a4921;
+            padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 -5px 10px rgba(0,0,0,0.1);
+        }
+
+        /* ABA 2: Venda */
+        .sell-form-panel {
+            width: 320px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="%23c49a6c"/><circle cx="2" cy="2" r="1" fill="%23a07a50"/></svg>');
+            border-right: 3px solid #8b5a2b; padding: 20px; color: #4a2c10;
+            box-shadow: inset -5px 0 15px rgba(0,0,0,0.1);
+        }
+        .item-slot-box {
+            background-color: #2b1d14; border: 2px solid #5a3814; border-radius: 6px;
+            height: 65px; margin-bottom: 20px; display: flex; align-items: center; padding: 6px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+        }
+        .radio-group label { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+
+        /* Modal Notificação */
+        #notification {
+            position: fixed; top: 30px; right: 30px;
+            background: linear-gradient(to right, #3b2004, #5a3814);
+            color: #fceabb; padding: 15px 25px;
+            border: 2px solid #d1a875; border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+            font-weight: bold; display: none; z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div>
-        <h1>BEM-VINDO</h1>
-        <p>Ao seu novo site</p>
+    <!-- NOTIFICAÇÃO GLOBAL -->
+    <div id="notification">Transação realizada com sucesso!</div>
+
+    <div class="auction-container">
+        
+        <!-- ==========================================================================
+             CABEÇALHO GERAL (Navbar)
+             ========================================================================== -->
+        <header class="top-banner">
+            <div class="leilao-title-img">Leilão</div>
+            <button class="tab-btn active" id="btn-tab-pesq" onclick="mudarAba('pesq')">Item de pesq</button>
+            <button class="tab-btn" id="btn-tab-venda" onclick="mudarAba('venda')">It.de leilão</button>
+            <button class="tab-btn" id="btn-tab-meus" onclick="mudarAba('meus')">Itens em leilão</button>
+        </header>
+        
+        <div class="warning-text">
+            <span>O sistema irá cobrar automaticamente uma taxa de 15% sobre o valor de venda.</span>
+            <button class="btn-ajuda">? Ajuda</button>
+        </div>
+
+        <!-- ==========================================================================
+             ABA 1: MERCADO (Pesquisa e Compra)
+             ========================================================================== -->
+        <section id="tab-pesq" class="main-content-area">
+            
+            <!-- Sidebar: Filtros e Categorias -->
+            <aside class="sidebar">
+                <div class="flex gap-1 mb-2">
+                    <input type="text" class="custom-input w-full text-left font-normal" placeholder="Nome do item...">
+                    <button class="btn-game btn-action-red !px-2 !py-1 !text-xs">Pesquisar</button>
+                </div>
+                
+                <nav class="flex flex-col gap-1">
+                    <div class="cat-item">
+                        <div style="width:16px; height:16px; background:#fff; border-radius:50%; border:1px solid #000;"></div> Beleza
+                    </div>
+                    <div class="cat-item">
+                        <div style="width:16px; height:16px; background:#a4b0be; border:1px solid #000;"></div> Fort.Comp.
+                    </div>
+                    <div class="cat-sub-item active">Super Pedra</div>
+                    <div class="cat-sub-item">Pedra Suzaku</div>
+                    <div class="cat-sub-item">Pedra Tartaruga Negra</div>
+                    <div class="cat-item">
+                        <div style="width:16px; height:16px; background:#ff4444; border-radius:50%; border:1px solid #000;"></div> Broca
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Área Principal: Tabela e Painel de Compra -->
+            <main class="flex-1 flex flex-col relative">
+                <div style="overflow-y: auto; height: 400px;">
+                    <table class="table-container">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Nome</th>
+                                <th style="width: 15%;">Qtd Venda</th>
+                                <th style="width: 20%;">Preço Venda<br>(Mais Barato)</th>
+                                <th style="width: 20%;">Preço Compra<br>(Mais Caro)</th>
+                                <th style="width: 10%;">Qtd Compra</th>
+                                <th style="width: 10%;">Tempo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="marketBody">
+                            <!-- Gerado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Painel Compacto Inferior -->
+                <footer class="compact-buy-panel">
+                    <div class="flex items-center gap-5">
+                        <div class="flex items-center gap-2 bg-[#1a120b] p-1.5 px-4 rounded text-white text-sm border-2 border-[#5a3814] shadow-inner" id="compactSelectedName">
+                            <span class="text-[#8b5a2b]">Selecione um item acima...</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[#4a2c10] font-bold">Preço max:</span>
+                            <input type="number" id="buyPrice" class="custom-input w-28" value="0">
+                            <div class="coin-icon"></div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[#4a2c10] font-bold">Qtd:</span>
+                            <input type="number" id="buyQty" class="custom-input w-20" value="1" min="1">
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <span class="text-[#5a3814] font-extrabold text-base bg-[#e0b885] px-3 py-1 rounded border border-[#8b5a2b]">Total: <span id="buyTotal">0</span><div class="coin-icon"></div></span>
+                        <button class="btn-game btn-action-green" onclick="criarOrdem('compra')">Comprar</button>
+                    </div>
+                </footer>
+            </main>
+        </section>
+
+        <!-- ==========================================================================
+             ABA 2: VENDA (Inventário e Criação de Ordem)
+             ========================================================================== -->
+        <section id="tab-venda" class="main-content-area hidden">
+            
+            <!-- Painel Esquerdo: Formulário de Venda -->
+            <aside class="sell-form-panel">
+                <div class="font-extrabold text-lg mb-1 text-[#3b2004]">Item de leilão</div>
+                <div class="text-xs text-center text-[#6d4218] mb-4">Clique no inventário para inserir itens<br>que você quer vender</div>
+                
+                <div class="item-slot-box" id="sellSlotBox">
+                    <span style="color: #8b5a2b; font-size: 0.8rem; padding-left: 10px;">Vazio...</span>
+                </div>
+
+                <div class="flex items-center justify-between mb-3">
+                    <label class="font-bold text-sm">Preço mínimo</label>
+                    <div class="flex items-center">
+                        <input type="number" id="sellPrice" class="custom-input w-32" value="0">
+                        <div class="coin-icon"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mb-4 pb-4 border-b border-[#8b5a2b]">
+                    <label class="font-bold text-sm">Qtd a Vender</label>
+                    <input type="number" id="sellQty" class="custom-input w-20" value="1" min="1">
+                </div>
+
+                <div class="flex justify-between items-start">
+                    <div class="flex flex-col gap-1 text-sm font-bold">
+                        <div class="text-[#3b2004] mb-1">Leilão de tempo</div>
+                        <label class="w-[120px]">8 horas <input type="radio" name="tempo_leilao" checked></label>
+                        <label class="w-[120px]">24 horas <input type="radio" name="tempo_leilao"></label>
+                        <label class="w-[120px]">48 horas <input type="radio" name="tempo_leilao"></label>
+                    </div>
+                    <div class="flex flex-col gap-1 text-sm font-bold">
+                        <label class="flex gap-1 items-center">
+                            <input type="checkbox"> Alto-falante
+                        </label>
+                        <div class="mt-4 text-[#cc0000] text-xs">Taxa <span class="text-[#4a2c10]">100</span><div class="coin-icon"></div></div>
+                    </div>
+                </div>
+
+                <button class="btn-game w-full mt-6 py-3 text-lg" onclick="criarOrdem('venda')">Leiloar Item</button>
+            </aside>
+
+            <!-- Painel Direito: Inventário do Jogador -->
+            <main class="flex-1 bg-[#d1a875] p-3">
+                <div class="text-[#3b2004] font-extrabold text-lg mb-2 border-b-2 border-[#b07c41] pb-1">O seu Inventário</div>
+                <div style="overflow-y: auto; height: 410px;">
+                    <table class="table-container">
+                        <thead>
+                            <tr>
+                                <th>Nome do Item</th>
+                                <th>Qtd Possuída</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryBody">
+                            <!-- Gerado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </section>
+
+        <!-- ==========================================================================
+             ABA 3: MINHAS ORDENS PENDENTES
+             ========================================================================== -->
+        <section id="tab-meus" class="main-content-area hidden">
+            <div class="w-full" style="overflow-y: auto; height: 480px;">
+                <table class="table-container">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Nome do Item</th>
+                            <th style="width: 15%;">Tipo de Ordem</th>
+                            <th style="width: 15%;">Qtd Pendente</th>
+                            <th style="width: 20%;">Preço Solicitado</th>
+                            <th style="width: 15%;">Tempo Restante</th>
+                            <th style="width: 10%;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myOrdersBody">
+                        <!-- Gerado via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
     </div>
 
+    <!-- ==========================================================================
+         JAVASCRIPT: LÓGICA DO JOGO E INTERFACE
+         ========================================================================== -->
+    <script>
+        // ------------------------------------------------------------------------
+        // MÓDULO 1: DADOS E ESTADO DA APLICAÇÃO
+        // ------------------------------------------------------------------------
+        const MEU_USUARIO = "JogadorAtual";
+        let contadorOrdens = 0;
+        let itemMercadoSeleccionado = null; 
+        let itemInventarioSeleccionado = null; 
+
+        class Ordem {
+            constructor(id, itemId, tipo, preco, quantidade, jogador) {
+                this.id = id;
+                this.itemId = itemId;
+                this.tipo = tipo; // 'compra' ou 'venda'
+                this.preco = parseFloat(preco);
+                this.quantidade = parseInt(quantidade);
+                this.jogador = jogador;
+                this.tempo = Date.now();
+            }
+        }
+
+        const dbItems = {
+            "alma_chiyan": { id: "alma_chiyan", nome: "Alma do Dragão Chiyan", iconColor: "#e53935", tempoExibicao: "Muito longo" },
+            "alma_pedra": { id: "alma_pedra", nome: "Alma desejo de pedra", iconColor: "#ff4081", tempoExibicao: "Muito longo" },
+            "alcool": { id: "alcool", nome: "Álcool", iconColor: "#90a4ae", tempoExibicao: "Longo" },
+            "pedra_suzaku": { id: "pedra_suzaku", nome: "Pedra Suzaku", iconColor: "#ff9800", tempoExibicao: "Muito longo" }
+        };
+
+        const inventarioJogador = {
+            "alma_chiyan": 15,
+            "alcool": 2,
+            "pedra_suzaku": 50
+        };
+
+        const livrosDeOfertas = {
+            "alma_chiyan": { compra: [], venda: [] },
+            "alma_pedra": { compra: [], venda: [] },
+            "alcool": { compra: [], venda: [] },
+            "pedra_suzaku": { compra: [], venda: [] }
+        };
+
+        // ------------------------------------------------------------------------
+        // MÓDULO 2: MOTOR CORE DO LEILÃO (MATCHING ENGINE)
+        // ------------------------------------------------------------------------
+        function adicionarOrdemSilenciosa(itemId, tipo, preco, qtd, jogador) {
+            const ordem = new Ordem(++contadorOrdens, itemId, tipo, preco, qtd, jogador);
+            livrosDeOfertas[itemId][tipo].push(ordem);
+            ordenarLivro(itemId, tipo);
+        }
+
+        function ordenarLivro(itemId, tipo) {
+            if (tipo === 'compra') {
+                livrosDeOfertas[itemId].compra.sort((a, b) => b.preco !== a.preco ? b.preco - a.preco : a.tempo - b.tempo);
+            } else {
+                livrosDeOfertas[itemId].venda.sort((a, b) => a.preco !== b.preco ? a.preco - b.preco : a.tempo - b.tempo);
+            }
+        }
+
+        function processarOrdens(itemId) {
+            const livro = livrosDeOfertas[itemId];
+            let houveNegocio = false;
+
+            while (livro.compra.length > 0 && livro.venda.length > 0) {
+                const melhorCompra = livro.compra[0];
+                const melhorVenda = livro.venda[0];
+
+                // Regra do Homebroker: Compra >= Venda
+                if (melhorCompra.preco >= melhorVenda.preco) {
+                    houveNegocio = true;
+                    const qtdNegociada = Math.min(melhorCompra.quantidade, melhorVenda.quantidade);
+                    
+                    melhorCompra.quantidade -= qtdNegociada;
+                    melhorVenda.quantidade -= qtdNegociada;
+
+                    if (melhorCompra.jogador === MEU_USUARIO) { 
+                        inventarioJogador[itemId] = (inventarioJogador[itemId] || 0) + qtdNegociada;
+                    }
+
+                    if (melhorCompra.quantidade === 0) livro.compra.shift();
+                    if (melhorVenda.quantidade === 0) livro.venda.shift();
+                } else {
+                    break;
+                }
+            }
+            return houveNegocio;
+        }
+
+        function criarOrdem(tipo) {
+            let itemId, qtd, preco;
+
+            if (tipo === 'compra') {
+                if (!itemMercadoSeleccionado) { mostrarNotificacao("Selecione um item na tabela!"); return; }
+                itemId = itemMercadoSeleccionado;
+                qtd = parseInt(document.getElementById('buyQty').value);
+                preco = parseFloat(document.getElementById('buyPrice').value);
+            } else {
+                if (!itemInventarioSeleccionado) { mostrarNotificacao("Selecione um item do inventário!"); return; }
+                itemId = itemInventarioSeleccionado;
+                qtd = parseInt(document.getElementById('sellQty').value);
+                preco = parseFloat(document.getElementById('sellPrice').value);
+                
+                if (qtd > inventarioJogador[itemId]) { mostrarNotificacao("Você não possui essa quantidade!"); return; }
+                
+                inventarioJogador[itemId] -= qtd; // Retira do inventário
+                renderizarInventario();
+            }
+
+            if (isNaN(qtd) || qtd <= 0 || isNaN(preco) || preco <= 0) { mostrarNotificacao("Valores inválidos."); return; }
+
+            const novaOrdem = new Ordem(++contadorOrdens, itemId, tipo, preco, qtd, MEU_USUARIO);
+            livrosDeOfertas[itemId][tipo].push(novaOrdem);
+            ordenarLivro(itemId, tipo);
+
+            if (processarOrdens(itemId)) {
+                mostrarNotificacao("Transação realizada com sucesso!");
+                if (tipo === 'compra') renderizarInventario();
+            } else {
+                mostrarNotificacao(`Ordem de ${tipo} registrada no mercado.`);
+            }
+
+            renderizarTabelaMercado();
+            if (tipo === 'compra') seleccionarItemMercado(itemMercadoSeleccionado);
+        }
+
+        function cancelarOrdem(ordemId, itemId, tipo) {
+            const lista = livrosDeOfertas[itemId][tipo];
+            const index = lista.findIndex(o => o.id === ordemId);
+            
+            if (index > -1) {
+                const ordemCancelada = lista.splice(index, 1)[0];
+                if (tipo === 'venda') {
+                    inventarioJogador[itemId] = (inventarioJogador[itemId] || 0) + ordemCancelada.quantidade;
+                    renderizarInventario();
+                }
+                mostrarNotificacao("Ordem cancelada com sucesso.");
+                renderizarMinhasOrdens();
+                renderizarTabelaMercado();
+            }
+        }
+
+        // ------------------------------------------------------------------------
+        // MÓDULO 3: CONTROLO DA INTERFACE E RENDERIZAÇÃO DOM
+        // ------------------------------------------------------------------------
+        function inicializarAplicacao() {
+            adicionarOrdemSilenciosa("alma_chiyan", "venda", 5939.3, 4813, "Sistema");
+            adicionarOrdemSilenciosa("alma_chiyan", "compra", 5939.2, 3, "OutroJogador");
+            adicionarOrdemSilenciosa("alma_pedra", "venda", 5000, 174, "Sistema");
+            adicionarOrdemSilenciosa("alcool", "venda", 923076.9, 56, "Sistema");
+            adicionarOrdemSilenciosa("alma_pedra", "compra", 4000, 5, MEU_USUARIO);
+
+            renderizarTabelaMercado();
+            renderizarInventario();
+            
+            document.getElementById('buyQty').addEventListener('input', calcularTotalCompra);
+            document.getElementById('buyPrice').addEventListener('input', calcularTotalCompra);
+            
+            seleccionarItemMercado("alma_chiyan");
+        }
+
+        function mudarAba(abaId) {
+            ['pesq', 'venda', 'meus'].forEach(id => {
+                document.getElementById('tab-' + id).classList.add('hidden');
+                document.getElementById('btn-tab-' + id).classList.remove('active');
+            });
+            document.getElementById('tab-' + abaId).classList.remove('hidden');
+            document.getElementById('btn-tab-' + abaId).classList.add('active');
+            if (abaId === 'meus') renderizarMinhasOrdens();
+        }
+
+        function calcularTotalCompra() {
+            const qtd = parseInt(document.getElementById('buyQty').value) || 0;
+            const preco = parseFloat(document.getElementById('buyPrice').value) || 0;
+            document.getElementById('buyTotal').textContent = (qtd * preco).toFixed(1);
+        }
+
+        function mostrarNotificacao(msg) {
+            const notif = document.getElementById('notification');
+            notif.textContent = msg;
+            notif.style.display = 'block';
+            setTimeout(() => { notif.style.display = 'none'; }, 3000);
+        }
+
+        // --- Renderizadores Específicos ---
+        function renderizarTabelaMercado() {
+            const tbody = document.getElementById('marketBody');
+            tbody.innerHTML = '';
+            
+            Object.keys(dbItems).forEach(itemId => {
+                const itemData = dbItems[itemId];
+                const livro = livrosDeOfertas[itemId];
+                const totalVenda = livro.venda.reduce((sum, o) => sum + o.quantidade, 0);
+                const melhorVenda = livro.venda.length > 0 ? livro.venda[0].preco : "-";
+                const totalCompra = livro.compra.reduce((sum, o) => sum + o.quantidade, 0);
+                const melhorCompra = livro.compra.length > 0 ? livro.compra[0].preco : "-";
+
+                const tr = document.createElement('tr');
+                tr.id = `row-mkt-${itemId}`;
+                tr.onclick = () => seleccionarItemMercado(itemId);
+
+                tr.innerHTML = `
+                    <td>
+                        <div class="item-icon" style="background-color: ${itemData.iconColor}22;">
+                            <div style="width:16px; height:16px; background-color:${itemData.iconColor}; border-radius:50%; box-shadow: 0 0 5px ${itemData.iconColor};"></div>
+                        </div>
+                        <span class="item-name">${itemData.nome}</span>
+                    </td>
+                    <td>${totalVenda > 0 ? totalVenda : '-'}</td>
+                    <td style="${melhorVenda !== '-' ? 'color: #3b2004;' : ''}">
+                        ${melhorVenda !== '-' ? melhorVenda + '<div class="coin-icon"></div>' : '-'}
+                    </td>
+                    <td style="${melhorCompra !== '-' ? 'color: #3b2004;' : ''}">
+                        ${melhorCompra !== '-' ? melhorCompra + '<div class="coin-icon"></div>' : '-'}
+                    </td>
+                    <td>${totalCompra > 0 ? totalCompra : '-'}</td>
+                    <td>${itemData.tempoExibicao}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function seleccionarItemMercado(itemId) {
+            itemMercadoSeleccionado = itemId;
+            const itemData = dbItems[itemId];
+            
+            document.querySelectorAll('#marketBody tr').forEach(tr => tr.classList.remove('selected'));
+            const row = document.getElementById(`row-mkt-${itemId}`);
+            if(row) row.classList.add('selected');
+
+            document.getElementById('compactSelectedName').innerHTML = `
+                <div style="width:16px; height:16px; background-color:${itemData.iconColor}; border-radius:50%; box-shadow: 0 0 5px ${itemData.iconColor};"></div>
+                <span class="font-bold text-white tracking-wide">${itemData.nome}</span>
+            `;
+
+            const livro = livrosDeOfertas[itemId];
+            const melhorVenda = livro.venda.length > 0 ? livro.venda[0].preco : 0;
+            document.getElementById('buyPrice').value = melhorVenda > 0 ? melhorVenda : 1000;
+            calcularTotalCompra();
+        }
+
+        function renderizarInventario() {
+            const tbody = document.getElementById('inventoryBody');
+            tbody.innerHTML = '';
+            
+            Object.keys(inventarioJogador).forEach(itemId => {
+                const qtd = inventarioJogador[itemId];
+                if (qtd <= 0) return;
+                
+                const itemData = dbItems[itemId];
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <div class="item-icon" style="width:28px; height:28px; background-color: ${itemData.iconColor}22;">
+                                <div style="width:12px; height:12px; background-color:${itemData.iconColor}; border-radius:50%;"></div>
+                            </div>
+                            <span class="item-name" style="color:#3b2004; text-shadow:none; font-weight:bold;">${itemData.nome}</span>
+                        </div>
+                    </td>
+                    <td class="font-extrabold text-[#8b3a0b]">${qtd}</td>
+                    <td>
+                        <button class="btn-game !px-3 !py-1" onclick="selecionarParaVenda('${itemId}')">Selecionar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function selecionarParaVenda(itemId) {
+            itemInventarioSeleccionado = itemId;
+            const itemData = dbItems[itemId];
+            
+            document.getElementById('sellSlotBox').innerHTML = `
+                <div class="flex items-center gap-3 text-white font-bold w-full pl-2">
+                    <div class="item-icon" style="background-color: ${itemData.iconColor}22; width: 45px; height: 45px;">
+                        <div style="width:20px; height:20px; background-color:${itemData.iconColor}; border-radius:50%;"></div>
+                    </div>
+                    <span>${itemData.nome}</span>
+                </div>
+            `;
+            
+            document.getElementById('sellQty').value = 1;
+            document.getElementById('sellQty').max = inventarioJogador[itemId];
+            
+            const melhorVenda = livrosDeOfertas[itemId].venda.length > 0 ? livrosDeOfertas[itemId].venda[0].preco : 1000;
+            document.getElementById('sellPrice').value = melhorVenda;
+        }
+
+        function renderizarMinhasOrdens() {
+            const tbody = document.getElementById('myOrdersBody');
+            tbody.innerHTML = '';
+            let temOrdens = false;
+
+            Object.keys(livrosDeOfertas).forEach(itemId => {
+                const livro = livrosDeOfertas[itemId];
+                const itemData = dbItems[itemId];
+
+                livro.compra.forEach(ordem => {
+                    if (ordem.jogador === MEU_USUARIO) { temOrdens = true; adicionarLinhaMinhasOrdens(tbody, ordem, itemData); }
+                });
+                livro.venda.forEach(ordem => {
+                    if (ordem.jogador === MEU_USUARIO) { temOrdens = true; adicionarLinhaMinhasOrdens(tbody, ordem, itemData); }
+                });
+            });
+
+            if (!temOrdens) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center font-bold text-[#8b5a2b]">O seu livro de ordens está vazio.</td></tr>`;
+            }
+        }
+
+        function adicionarLinhaMinhasOrdens(tbody, ordem, itemData) {
+            const tr = document.createElement('tr');
+            const ehCompra = ordem.tipo === 'compra';
+            const tipoCor = ehCompra ? 'color: #1b5e20;' : 'color: #b71c1c;';
+            const tipoBG = ehCompra ? 'bg-[#c8e6c9]' : 'bg-[#ffcdd2]';
+            
+            tr.innerHTML = `
+                <td>
+                    <div class="flex items-center gap-2">
+                        <div class="item-icon" style="width:28px; height:28px; background-color: ${itemData.iconColor}22;">
+                            <div style="width:12px; height:12px; background-color:${itemData.iconColor}; border-radius:50%;"></div>
+                        </div>
+                        <span class="item-name" style="color:#3b2004; text-shadow:none; font-weight:bold;">${itemData.nome}</span>
+                    </div>
+                </td>
+                <td><span class="${tipoBG} px-2 py-1 rounded font-bold" style="${tipoCor}">${ehCompra ? 'COMPRA' : 'VENDA'}</span></td>
+                <td class="font-extrabold">${ordem.quantidade}</td>
+                <td>${ordem.preco} <div class="coin-icon"></div></td>
+                <td>23:59:00</td>
+                <td>
+                    <button class="btn-game btn-action-red !px-2 !py-1 !text-xs" onclick="cancelarOrdem(${ordem.id}, '${ordem.itemId}', '${ordem.tipo}')">
+                        Cancelar
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        // Inicia
+        window.onload = inicializarAplicacao;
+
+    </script>
 </body>
 </html>
